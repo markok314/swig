@@ -37,33 +37,43 @@ DoxygenParser::~DoxygenParser() {
 }
 
 void DoxygenParser::fillTables() {
-	// run it only once
-	if (doxygenCommands.size())
-		return;
+    // run it only once
+    if (doxygenCommands.size())
+        return;
 
-	// fill in tables with data from DxygenCommands.h
-	for (int i = 0; i < simpleCommandsSize; i++)
-		doxygenCommands[simpleCommands[i]] = SIMPLECOMMAND;
-	for (int i = 0; i < commandWordsSize; i++)
-		doxygenCommands[commandWords[i]] = COMMANDWORD;
-	for (int i = 0; i < commandLinesSize; i++)
-		doxygenCommands[commandLines[i]] = COMMANDLINE;
-	for (int i = 0; i < commandParagraphSize; i++)
-		doxygenCommands[commandParagraph[i]] = COMMANDPARAGRAPH;
-	for (int i = 0; i < commandEndCommandsSize; i++)
-		doxygenCommands[commandEndCommands[i]] = COMMANDENDCOMMAND;
-	for (int i = 0; i < commandWordParagraphsSize; i++)
-		doxygenCommands[commandWordParagraphs[i]] = COMMANDWORDPARAGRAPH;
-	for (int i = 0; i < commandWordLinesSize; i++)
-		doxygenCommands[commandWordLines[i]] = COMMANDWORDLINE;
-	for (int i = 0; i < commandWordOWordOWordsSize; i++)
-		doxygenCommands[commandWordOWordOWords[i]] = COMMANDWORDOWORDWORD;
-	for (int i = 0; i < commandOWordsSize; i++)
-		doxygenCommands[commandOWords[i]] = COMMANDOWORD;
-	for (int i = 0; i < commandErrorThrowingsSize; i++)
-		doxygenCommands[commandErrorThrowings[i]] = COMMANDERRORTHROW;
-	for (int i = 0; i < commandUniquesSize; i++)
-		doxygenCommands[commandUniques[i]] = COMMANDUNIQUE;
+    // fill in tables with data from DxygenCommands.h
+    for (int i = 0; i < simpleCommandsSize; i++)
+        doxygenCommands[simpleCommands[i]] = SIMPLECOMMAND;
+
+    for (int i = 0; i < commandWordsSize; i++)
+        doxygenCommands[commandWords[i]] = COMMANDWORD;
+
+    for (int i = 0; i < commandLinesSize; i++)
+        doxygenCommands[commandLines[i]] = COMMANDLINE;
+
+    for (int i = 0; i < commandParagraphSize; i++)
+        doxygenCommands[commandParagraph[i]] = COMMANDPARAGRAPH;
+
+    for (int i = 0; i < commandEndCommandsSize; i++)
+        doxygenCommands[commandEndCommands[i]] = COMMANDENDCOMMAND;
+
+    for (int i = 0; i < commandWordParagraphsSize; i++)
+        doxygenCommands[commandWordParagraphs[i]] = COMMANDWORDPARAGRAPH;
+
+    for (int i = 0; i < commandWordLinesSize; i++)
+        doxygenCommands[commandWordLines[i]] = COMMANDWORDLINE;
+
+    for (int i = 0; i < commandWordOWordOWordsSize; i++)
+        doxygenCommands[commandWordOWordOWords[i]] = COMMANDWORDOWORDWORD;
+
+    for (int i = 0; i < commandOWordsSize; i++)
+        doxygenCommands[commandOWords[i]] = COMMANDOWORD;
+
+    for (int i = 0; i < commandErrorThrowingsSize; i++)
+        doxygenCommands[commandErrorThrowings[i]] = COMMANDERRORTHROW;
+
+    for (int i = 0; i < commandUniquesSize; i++)
+        doxygenCommands[commandUniques[i]] = COMMANDUNIQUE;
 
     for (int i = 0; i < htmlCommandsSize; i++)
         doxygenCommands[htmlCommands[i]] = COMMANDUNIQUE;
@@ -71,9 +81,9 @@ void DoxygenParser::fillTables() {
     for (int i = 0; i < commandUniquesSize; i++)
         doxygenCommands[commandUniques[i]] = COMMANDUNIQUE;
 
-	// fill section indicators command set
-	for (int i = 0; i < sectionIndicatorsSize; i++)
-		doxygenSectionIndicators.insert(sectionIndicators[i]);
+    // fill section indicators command set
+    for (int i = 0; i < sectionIndicatorsSize; i++)
+        doxygenSectionIndicators.insert(sectionIndicators[i]);
 }
 
 
@@ -311,32 +321,33 @@ std::string DoxygenParser::getStringTilEndCommand(const std::string & theCommand
 
 DoxygenParser::TokenListCIt DoxygenParser::getEndOfParagraph(const TokenList & tokList) {
 
-	TokenListCIt endOfParagraph = m_tokenListIt;
+    TokenListCIt endOfParagraph = m_tokenListIt;
 
-	while (endOfParagraph != tokList.end()) {
-		if ((*endOfParagraph).m_tokenType == END_LINE) {
-			endOfParagraph++;
-			if (endOfParagraph != tokList.end() && (*endOfParagraph).m_tokenType == END_LINE) {
-				endOfParagraph++;
-				//cout << "ENCOUNTERED END OF PARA" << endl;
-				return endOfParagraph;
-			}
+    while (endOfParagraph != tokList.end()) {
+        if (endOfParagraph->m_tokenType == END_LINE) {
+            endOfParagraph++;
+            if (endOfParagraph != tokList.end() && endOfParagraph->m_tokenType == END_LINE) {
+                endOfParagraph++;
+                //cout << "ENCOUNTERED END OF PARA" << endl;
+                return endOfParagraph;
+            }
 
-		} else if ((*endOfParagraph).m_tokenType == COMMAND) {
+        } else if (endOfParagraph->m_tokenType == COMMAND) {
 
-			if (isSectionIndicator((*endOfParagraph).m_tokenString)) {
-				return endOfParagraph;
-			} else
-				endOfParagraph++;
+            if (isSectionIndicator(endOfParagraph->m_tokenString)) {
+                return endOfParagraph;
+            } else {
+                endOfParagraph++;
+            }
 
-		} else if ((*endOfParagraph).m_tokenType == PLAINSTRING) {
-			endOfParagraph++;
-		} else {
-			return tokList.end();
-		}
-	}
+        } else if (endOfParagraph->m_tokenType == PLAINSTRING) {
+            endOfParagraph++;
+        } else {
+            return tokList.end();
+        }
+    }
 
-	return tokList.end();
+    return tokList.end();
 }
 
 
@@ -346,16 +357,16 @@ DoxygenParser::TokenListCIt DoxygenParser::getEndOfSection(const std::string & t
     TokenListCIt endOfParagraph = m_tokenListIt;
 
 	while (endOfParagraph != tokList.end()) {
-		if ((*endOfParagraph).m_tokenType == COMMAND) {
-			if (theCommand == (*endOfParagraph).m_tokenString)
+		if (endOfParagraph->m_tokenType == COMMAND) {
+			if (theCommand == endOfParagraph->m_tokenString)
 				return endOfParagraph;
 			else
 				endOfParagraph++;
-		} else if ((*endOfParagraph).m_tokenType == PLAINSTRING) {
+		} else if (endOfParagraph->m_tokenType == PLAINSTRING) {
 			endOfParagraph++;
-		} else if ((*endOfParagraph).m_tokenType == END_LINE) {
+		} else if (endOfParagraph->m_tokenType == END_LINE) {
 			endOfParagraph++;
-			if ((*endOfParagraph).m_tokenType == END_LINE) {
+			if (endOfParagraph->m_tokenType == END_LINE) {
 				endOfParagraph++;
 				return endOfParagraph;
 			}
@@ -473,24 +484,25 @@ int DoxygenParser::addCommandEndCommand(const std::string &theCommand,
 
 
 int DoxygenParser::addCommandWordParagraph(const std::string &theCommand,
-                                                 const TokenList &tokList,
-                                                 DoxygenEntityList &doxyList) {
-	if (noisy)
-		cout << "Parsing " << theCommand << endl;
+                                           const TokenList &tokList,
+                                           DoxygenEntityList &doxyList) {
+    if (noisy)
+        cout << "Parsing " << theCommand << endl;
 
-	std::string name = getNextWord();
+    std::string name = getNextWord();
 
-	if (name.empty()) {
-		printListError(WARN_DOXYGEN_COMMAND_ERROR, "No word followed " + theCommand + " command. Not added");
-		return 0;
-	}
-	TokenListCIt endOfParagraph = getEndOfParagraph(tokList);
-	DoxygenEntityList aNewList;
-	aNewList = parse(endOfParagraph, tokList);
-	aNewList.push_front(DoxygenEntity("plainstd::string", name));
-	doxyList.push_back(DoxygenEntity(theCommand, aNewList));
-	return 1;
+    if (name.empty()) {
+        printListError(WARN_DOXYGEN_COMMAND_ERROR, "No word followed " + theCommand + " command. Not added");
+        return 0;
+    }
+    TokenListCIt endOfParagraph = getEndOfParagraph(tokList);
+    DoxygenEntityList aNewList;
+    aNewList = parse(endOfParagraph, tokList);
+    aNewList.push_front(DoxygenEntity("plainstd::string", name));
+    doxyList.push_back(DoxygenEntity(theCommand, aNewList));
+    return 1;
 }
+
 
 int DoxygenParser::addCommandWordLine(const std::string &theCommand,
                                            const TokenList & tokList,
@@ -1119,7 +1131,8 @@ void DoxygenParser::tokenizeDoxygenComment(const std::string &doxygenComment,
         case '\\':  // process doxy command
         case '@': {
           pos++;
-          size_t endOfWordPos = line.find_first_not_of("abcdefghijklmnopqrstuvwxyz", pos);
+          // characters '$[]{}' are used in commands \f$, \f[, ...
+          size_t endOfWordPos = line.find_first_not_of("abcdefghijklmnopqrstuvwxyz$[]{}", pos);
           addDoxyCommand(m_tokenList, line.substr(pos , endOfWordPos - pos));
           // skip any possible spaces after command, because some commands have parameters,
           // and spaces between command and parameter must be ignored.

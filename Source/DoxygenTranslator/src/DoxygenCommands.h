@@ -3,9 +3,12 @@
 #define DOXYGENCOMMANDS_H
 
 const char *sectionIndicators[] = {
-  "attention", "author", "authors", "brief", "bug", "cond", "date", "deprecated", "details",
-  "else", "elseif", "endcond", "endif", "exception", "if", "ifnot", "invariant", "note", "par", "param",
-  "tparam", "post", "pre", "remarks", "remark", "result", "return", "returns", "retval", "sa", "see", "since", "test", "throw", "throws", "todo", "version", "warning", "xrefitem"};
+  "attention", "author", "authors", "brief", "bug", "cond", "date",
+  "deprecated", "details", "else", "elseif", "endcond", "endif",
+  "exception", "if", "ifnot", "invariant", "note", "par", "param",
+  "tparam", "post", "pre", "remarks", "remark", "result", "return",
+  "returns", "retval", "sa", "see", "since", "test", "throw", "throws",
+  "todo", "version", "warning", "xrefitem"};
 const int sectionIndicatorsSize = sizeof(sectionIndicators) / sizeof(*sectionIndicators);
 
 /* All of the doxygen commands divided up by how they are parsed */
@@ -17,20 +20,23 @@ const char *simpleCommands[] = {
 const int simpleCommandsSize = sizeof(simpleCommands) / sizeof(*simpleCommands);
 
 const char *commandWords[] = {
-  "a", "b", "c", "e", "em", "p", "def", "enum", "package", "relates", "namespace",
-  "relatesalso", "anchor", "dontinclude", "include",
-  "includelineno", "copydoc", "copybrief", "copydetails", "verbinclude", "htmlinclude",
-  "extends", "implements", "memberof", "related", "relatedalso", "cite"};
+  "a", "b", "c", "e", "em", "p", "def", "enum", "package", "relates",
+  "namespace", "relatesalso", "anchor", "dontinclude", "include",
+  "includelineno", "copydoc", "copybrief", "copydetails", "verbinclude",
+  "htmlinclude", "extends", "implements", "memberof", "related", "relatedalso",
+  "cite"};
 const int commandWordsSize = sizeof(commandWords) / sizeof(*commandWords);
 
 const char *commandLines[] = {
-  "addindex", "fn", "name", "line", "var", "skipline", "typedef", "skip", "until", "property"};
+  "addindex", "fn", "name", "line", "var", "skipline", "typedef", "skip",
+  "until", "property"};
 const int commandLinesSize = sizeof(commandLines) / sizeof(*commandLines);
 
 const char *commandParagraph[] = {
-  "partofdescription", "result", "return", "returns", "remarks", "remark", "since", "test", "sa", "see", "pre", "post", "details", "invariant",
-  "deprecated", "date", "note", "warning", "version", "todo", "bug", "attention", "brief", "author", "authors",
-  "copyright", "short"};
+  "partofdescription", "result", "return", "returns", "remarks", "remark",
+  "since", "test", "sa", "see", "pre", "post", "details", "invariant",
+  "deprecated", "date", "note", "warning", "version", "todo", "bug",
+  "attention", "brief", "author", "authors", "copyright", "short"};
 const int commandParagraphSize = sizeof(commandParagraph) / sizeof(*commandParagraph);
 
 const char *commandEndCommands[] = {
@@ -42,7 +48,8 @@ const char *commandWordParagraphs[] = {
 const int commandWordParagraphsSize = sizeof(commandWordParagraphs) / sizeof(*commandWordParagraphs);
 
 const char *commandWordLines[] = {
-  "page", "subsection", "subsubsection", "section", "paragraph", "defgroup", "snippet", "mainpage"};
+  "page", "subsection", "subsubsection", "section", "paragraph", "defgroup",
+  "snippet", "mainpage"};
 const int commandWordLinesSize = sizeof(commandWordLines) / sizeof(*commandWordLines);
 
 const char *commandWordOWordOWords[] = {

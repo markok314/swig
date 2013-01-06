@@ -98,10 +98,10 @@ public class doxygen_translate_all_tags_runme {
     		" <p alt=\"The paragraph title \">\n" +
     		" The paragraph text. \n" +
     		" Maybe even multiline \n" +
-    		" </p>\n");
+    		" </p>\n" +
+                " @param a the first param\n");
     
     wantedComments.put("doxygen_translate_all_tags.doxygen_translate_all_tags.func08(int)",
-                       " @param a the first param \n" +
     		" Remarks: Some remark text \n" +
     		" Remarks: Another remarks section \n" +
     		" @return Whatever \n" +
@@ -118,7 +118,7 @@ public class doxygen_translate_all_tags_runme {
     		" @throws superException \n" +
     		" @throws RuntimeError \n");
     
-    wantedComments.put("doxygen_translate_all_tags.doxygen_translate_all_tags.func10(int)",
+    wantedComments.put("doxygen_translate_all_tags.doxygen_translate_all_tags.func10(int, float)",
                        " TODO: Some very important task \n" +
     		" @param b B is mentioned again... \n" +
     		" {@literal \n" +

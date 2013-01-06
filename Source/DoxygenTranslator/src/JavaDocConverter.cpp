@@ -207,14 +207,18 @@ std::string JavaDocConverter::formatCommand(std::string unformattedLine,
 
 
 /**
- * Returns true, if the given parameter exists in the current node. If feature
- * 'doxygen:nostripparams' is set, then this method always returns true.
+ * Returns true, if the given parameter exists in the current node
+ * (for example param is a name of function parameter). If feature
+ * 'doxygen:nostripparams' is set, then this method always returns
+ * true - parameters are copied to output regardless of presence in
+ * function params list.
  */
 bool JavaDocConverter::paramExists(std::string param) {
 
   if (GetFlag(currentNode, "feature:doxygen:nostripparams")) {
     return true;
   }
+  printf("cmd x: %s\n", param.c_str());
 
   ParmList *plist = CopyParmList(Getattr(currentNode, "parms"));
 
@@ -380,17 +384,23 @@ void JavaDocConverter::handleTagPar(DoxygenEntity& tag, std::string& translatedC
 }
 
 
-void JavaDocConverter::handleTagParam(DoxygenEntity& tag, std::string& translatedComment, std::string&) {
+void JavaDocConverter::handleTagParam(DoxygenEntity& tag,
+                                      std::string& translatedComment,
+                                      std::string&) {
   std::string dummy;
+
   if (!tag.entityList.size())
     return;
+  printf("cmd 1: %s\n", translatedComment.c_str());
   if (!paramExists(tag.entityList.begin()->data))
     return;
 
+  printf("cmd 2: %s\n", translatedComment.c_str());
   translatedComment += "@param ";
   translatedComment += tag.entityList.begin()->data + " ";
   tag.entityList.pop_front();
   handleParagraph(tag, translatedComment, dummy);
+  printf("cmd: %s\n", translatedComment.c_str());
 }
 
 
