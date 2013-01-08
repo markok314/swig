@@ -85,6 +85,8 @@ private:
   static DoxyCommandsMap doxygenCommands;
   static std::set<std::string> doxygenSectionIndicators;
 
+  bool m_isVerbatimText; // used to handle \htmlonly and \verbatim commands
+
   std::string m_fileName;
   int m_fileLineNo;
 
@@ -331,7 +333,13 @@ private:
    * Fill static doxygenCommands and sectionIndicators containers
    */
   void fillTables();
-  
+
+  /** Processes comment when \htmlonly and \verbatim commands are encountered. */
+  size_t processVerbatimText(size_t pos, const std::string &line);
+
+  /** Processes comment outside \htmlonly and \verbatim commands. */
+  size_t processNormalComment(size_t pos, const std::string &line);
+
   void tokenizeDoxygenComment(const std::string &doxygenComment,
                                  const std::string &fileName,
                                  int fileLine);

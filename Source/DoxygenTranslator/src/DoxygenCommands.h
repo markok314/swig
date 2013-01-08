@@ -2,6 +2,11 @@
 #ifndef DOXYGENCOMMANDS_H
 #define DOXYGENCOMMANDS_H
 
+const char *CMD_HTML_ONLY = "htmlonly";
+const char *CMD_VERBATIM = "verbatim";
+const char *CMD_END_HTML_ONLY = "endhtmlonly";
+const char *CMD_END_VERBATIM = "endverbatim";
+
 const char *sectionIndicators[] = {
   "attention", "author", "authors", "brief", "bug", "cond", "date",
   "deprecated", "details", "else", "elseif", "endcond", "endif",
@@ -40,7 +45,7 @@ const char *commandParagraph[] = {
 const int commandParagraphSize = sizeof(commandParagraph) / sizeof(*commandParagraph);
 
 const char *commandEndCommands[] = {
-  "htmlonly", "latexonly", "manonly", "xmlonly", "link", "rtfonly"};
+  CMD_HTML_ONLY, "latexonly", "manonly", "xmlonly", "link", "rtfonly"};
 const int commandEndCommandsSize = sizeof(commandEndCommands) / sizeof(*commandEndCommands);
 
 const char *commandWordParagraphs[] = {
@@ -69,7 +74,7 @@ const int commandErrorThrowingsSize = sizeof(commandErrorThrowings) / sizeof(*co
 
 const char *commandUniques[] = {
   "xrefitem", "arg", "ingroup", "par", "headerfile", "overload", "weakgroup", "ref", "subpage", "dotfile", "image", "addtogroup", "li",
-  "if", "ifnot", "elseif", "else", "mscfile", "code", "verbatim", "f{", "f[", "f$", "dot", "msc"};
+  "if", "ifnot", "elseif", "else", "mscfile", "code", CMD_VERBATIM, "f{", "f[", "f$", "dot", "msc"};
 const int commandUniquesSize = sizeof(commandUniques) / sizeof(*commandUniques);
 
 // These HTML commands are transformed when producing output in other formats.

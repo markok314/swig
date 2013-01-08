@@ -218,7 +218,6 @@ bool JavaDocConverter::paramExists(std::string param) {
   if (GetFlag(currentNode, "feature:doxygen:nostripparams")) {
     return true;
   }
-  printf("cmd x: %s\n", param.c_str());
 
   ParmList *plist = CopyParmList(Getattr(currentNode, "parms"));
 
@@ -391,11 +390,9 @@ void JavaDocConverter::handleTagParam(DoxygenEntity& tag,
 
   if (!tag.entityList.size())
     return;
-  printf("cmd 1: %s\n", translatedComment.c_str());
   if (!paramExists(tag.entityList.begin()->data))
     return;
 
-  printf("cmd 2: %s\n", translatedComment.c_str());
   translatedComment += "@param ";
   translatedComment += tag.entityList.begin()->data + " ";
   tag.entityList.pop_front();

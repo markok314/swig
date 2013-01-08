@@ -29,7 +29,8 @@ std::set<std::string> DoxygenParser::doxygenSectionIndicators;
 const int TOKENSPERLINE = 8;    //change this to change the printing behaviour of the token list
 
 
-DoxygenParser::DoxygenParser(bool noisy) : noisy(noisy) {
+DoxygenParser::DoxygenParser(bool noisy) : noisy(noisy)
+{
 	fillTables();
 }
 
@@ -146,7 +147,7 @@ std::string DoxygenParser::trim(const std::string &text)
     size_t start = text.find_first_not_of(" \t");
     size_t end = text.find_last_not_of(" \t");
 
-    if (start >= end) {
+    if (start == string::npos  ||  start > end) {
         return "";
     }
     return text.substr(start, end - start + 1);
@@ -302,7 +303,7 @@ std::string DoxygenParser::getStringTilEndCommand(const std::string & theCommand
 
 		//TODO: it won't output doxygen commands, need a way to fix it
 		if (m_tokenListIt->m_tokenType == PLAINSTRING) {
-			description += m_tokenListIt->m_tokenString + " ";
+			description += m_tokenListIt->m_tokenString;
 		} else if (m_tokenListIt->m_tokenType == END_LINE) {
 			description += "\n";
 	    } else if (m_tokenListIt->m_tokenString == theCommand) {
@@ -523,6 +524,7 @@ int DoxygenParser::addCommandWordLine(const std::string &theCommand,
 	return 1;
 	//else cout << "No line followed " << theCommand <<  " command. Not added" << endl;
 }
+
 
 int DoxygenParser::addCommandWordOWordOWord(const std::string &theCommand,
                                                   const TokenList &,
@@ -1080,6 +1082,114 @@ void DoxygenParser::addDoxyCommand(DoxygenParser::TokenList &tokList,
 }
 
 
+size_t DoxygenParser::processVerbatimText(size_t pos, const std::string &line)
+{
+    if (line[pos] == '\\'  ||  line[pos] == '@') {
+        pos++;
+        // characters '$[]{}' are used in commands \f$, \f[, ...
+        size_t endOfWordPos = line.find_first_not_of("abcdefghijklmnopqrstuvwxyz$[]{}", pos);
+        string cmd = line.substr(pos , endOfWordPos - pos);
+
+        if (cmd == CMD_END_HTML_ONLY  ||  cmd == CMD_END_VERBATIM) {
+            m_isVerbatimText = false;
+            addDoxyCommand(m_tokenList, cmd);
+        } else {
+            cmd = line[pos] + cmd; // prepend '\\' or '@'
+            m_tokenList.push_back(Token(PLAINSTRING,
+                                  line.substr(pos, endOfWordPos - pos)));
+        }
+        pos = endOfWordPos;
+    } else {
+        // whitespaces are stored as plain strings
+        size_t startOfPossibleEndCmd = line.find_first_of("\\@", pos);
+        m_tokenList.push_back(Token(PLAINSTRING,
+                              line.substr(pos, startOfPossibleEndCmd - pos)));
+        pos = startOfPossibleEndCmd;
+    }
+
+    return pos;
+}
+
+
+size_t DoxygenParser::processNormalComment(size_t pos, const std::string &line)
+{
+    switch (line[pos]) {
+    case '\\':  // process doxy command or escaped char
+       /* switch (line[pos + 1]) {
+        case '$':
+        case '@':
+        case '\':
+        case '&':
+        case '~':
+        case '<':
+        case '>':
+        case '#': \% \" \. \::
+        }
+        TODO break case if any of escaped chars */
+    case '@': {
+      pos++;
+      // characters '$[]{}' are used in commands \f$, \f[, ...
+      size_t endOfWordPos = line.find_first_not_of("abcdefghijklmnopqrstuvwxyz$[]{}", pos);
+      string cmd = line.substr(pos , endOfWordPos - pos);
+      addDoxyCommand(m_tokenList, cmd);
+      if (cmd == CMD_HTML_ONLY  ||  cmd == CMD_VERBATIM) {
+          m_isVerbatimText = true;
+      }
+      // skip any possible spaces after command, because some commands have parameters,
+      // and spaces between command and parameter must be ignored.
+      if (endOfWordPos != string::npos) {
+          pos = line.find_first_not_of(" \t", endOfWordPos);
+      } else {
+          pos = string::npos;
+      }
+    } break;
+
+    case ' ':  // whitespace
+    case '\t': {
+      // whitespaces are stored as plain strings
+      size_t startOfNextWordPos = line.find_first_not_of(" \t", pos + 1);
+      m_tokenList.push_back(Token(PLAINSTRING,
+                               line.substr(pos, startOfNextWordPos - pos)));
+      pos = startOfNextWordPos;
+    } break;
+
+    case '<': { // process html commands
+
+      size_t endHtmlPos = line.find_first_of("\t >", pos + 1);
+      if (endHtmlPos != string::npos) {
+        // will push plain string Token. If the command is not HTML supported by
+        // Doxygen, < and > will be replaced by HTML entities &lt; and &gt; respectively,
+        // but only if 'htmlOnly' flag == false. The flag is set/reset by \htmlonly \verbatim,
+        // \endhtmlonly \endverbatim Doxygen commands.
+        // handleHTMLCommand(line.substr(pos + 1), endHtmlPos - pos - 1);
+      }
+      pos = endHtmlPos;
+    } break;
+
+    case '&': { // process HTML entities
+        size_t endOfWordPos = line.find_first_not_of("abcdefghijklmnopqrstuvwxyz", pos + 1);
+        if (endOfWordPos != string::npos) {
+            if (line[endOfWordPos] == ';') {
+                addDoxyCommand(m_tokenList, line.substr(pos, endOfWordPos));
+            } else {
+                // it is not an entity - push plain string
+                m_tokenList.push_back(Token(PLAINSTRING,
+                                      line.substr(pos, endOfWordPos - pos)));
+                pos = endOfWordPos;
+            }
+        } else {
+            pos = string::npos;
+        }
+    }
+    break;
+    default:
+      printListError(WARN_DOXYGEN_COMMAND_ERROR, "Unknown special character: " + line[pos]);
+    }
+
+    return pos;
+}
+
+
 /**
  * This method tokenizes Doxygen comment to words and doxygen commands.
  */
@@ -1087,6 +1197,7 @@ void DoxygenParser::tokenizeDoxygenComment(const std::string &doxygenComment,
                                                  const std::string &fileName,
                                                  int fileLine)
 {
+  m_isVerbatimText = false;
   m_tokenList.clear();
   m_fileLineNo = fileLine;
   m_fileName = fileName;
@@ -1127,62 +1238,10 @@ void DoxygenParser::tokenizeDoxygenComment(const std::string &doxygenComment,
 
       pos = doxyCmdOrHtmlTagPos;
       if (pos != string::npos) {
-        switch (line[pos]) {
-        case '\\':  // process doxy command
-        case '@': {
-          pos++;
-          // characters '$[]{}' are used in commands \f$, \f[, ...
-          size_t endOfWordPos = line.find_first_not_of("abcdefghijklmnopqrstuvwxyz$[]{}", pos);
-          addDoxyCommand(m_tokenList, line.substr(pos , endOfWordPos - pos));
-          // skip any possible spaces after command, because some commands have parameters,
-          // and spaces between command and parameter must be ignored.
-          if (endOfWordPos != string::npos) {
-              pos = line.find_first_not_of(" \t", endOfWordPos);
-          } else {
-              pos = string::npos;
-          }
-        } break;
-
-        case ' ':  // whitespace
-        case '\t': {
-          // whitespaces are stored as plain strings
-          size_t startOfNextWordPos = line.find_first_not_of(" \t", pos + 1);
-          m_tokenList.push_back(Token(PLAINSTRING,
-                                   line.substr(pos, startOfNextWordPos - pos)));
-          pos = startOfNextWordPos;
-        } break;
-
-        case '<': { // process html commands
-
-          size_t endHtmlPos = line.find_first_of("\t >", pos + 1);
-          if (endHtmlPos != string::npos) {
-            // will push plain string Token. If the command is not HTML supported by
-            // Doxygen, < and > will be replaced by HTML entities &lt; and &gt; respectively,
-            // but only if 'htmlOnly' flag == false. THe flag is set/reset by \htmlonly,
-            // \endhtmlonly Doxygen commands.
-            // handleHTMLCommand(line.substr(pos + 1), endHtmlPos - pos - 1);
-          }
-          pos = endHtmlPos;
-        } break;
-
-        case '&': { // process HTML entities
-            size_t endOfWordPos = line.find_first_not_of("abcdefghijklmnopqrstuvwxyz", pos + 1);
-            if (endOfWordPos != string::npos) {
-                if (line[endOfWordPos] == ';') {
-                    addDoxyCommand(m_tokenList, line.substr(pos, endOfWordPos));
-                } else {
-                    // it is not an entity - push plain string
-                    m_tokenList.push_back(Token(PLAINSTRING,
-                                          line.substr(pos, endOfWordPos - pos)));
-                    pos = endOfWordPos;
-                }
-            } else {
-                pos = string::npos;
-            }
-        }
-        break;
-        default:
-          printListError(WARN_DOXYGEN_COMMAND_ERROR, "Unknown special character: " + line[pos]);
+        if (m_isVerbatimText) {
+            pos = processVerbatimText(pos, line);
+        } else {
+            pos = processNormalComment(pos, line);
         }
       }
     }
